@@ -301,7 +301,7 @@ const Header: React.FC = () => {
               <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                 BlogPlatform
               </span>
-              <span className="text-xs text-gray-500 -mt-1 hidden sm:block">Powered by Zeno Coder</span>
+              <span className="text-xs text-gray-500 -mt-1 hidden sm:block">Powered by Zine Coder</span>
             </div>
           </Link>
 

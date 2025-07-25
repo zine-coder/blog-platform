@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { postsAPI, userAPI, searchAPI } from '../services/api';
 import PostCard from '../components/Posts/PostCard';
-import { ChevronLeft, ChevronRight, Loader2, Search, ArrowLeft, User, FileText } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Search, ArrowLeft, User, FileText } from 'lucide-react';
 import { User as UserType } from '../models';
 
 const SearchPage: React.FC = () => {
@@ -19,6 +19,10 @@ const SearchPage: React.FC = () => {
   const [postsError, setPostsError] = useState('');
   const [postsCurrentPage, setPostsCurrentPage] = useState(1);
   const [postsTotalPages, setPostsTotalPages] = useState(1);
+
+  // Popular posts state
+  const [popularPosts, setPopularPosts] = useState<any[]>([]);
+  const [popularLoading, setPopularLoading] = useState(false);
   
   // Users state
   const [users, setUsers] = useState<UserType[]>([]);
@@ -56,25 +60,27 @@ const SearchPage: React.FC = () => {
       searchPostsByHashtag(hashtagFilter, postsCurrentPage);
       setActiveTab('articles'); // Force articles tab when searching by hashtag
     } else if (authorFilter) {
-      searchPostsByAuthor(authorFilter, postsCurrentPage);
+      searchPostsByAuthor(postsCurrentPage);
       setActiveTab('articles'); // Force articles tab when searching by author
     } else if (dateFilter || sortBy !== 'recent') {
       // If only date filter or sort is specified, show all posts with those filters
       searchPosts('', postsCurrentPage);
       setActiveTab('articles');
+    } else {
+      // Recherche vide : charger les articles populaires
+      fetchPopularPosts(postsCurrentPage);
+      setActiveTab('articles');
     }
+    // eslint-disable-next-line
   }, [query, hashtagFilter, authorFilter, dateFilter, sortBy, postsCurrentPage, usersCurrentPage]);
 
   const searchPosts = async (searchQuery: string, page: number) => {
     setPostsLoading(true);
     try {
-      // Build search options
       const searchOptions: Record<string, string> = {};
       if (dateFilter) searchOptions.date = dateFilter;
       if (sortBy) searchOptions.sort = sortBy;
-      
-      // In a real implementation, these options would be passed to the API
-      const response = await postsAPI.getAllPosts(page, 5, searchQuery);
+      const response = await postsAPI.getAllPosts(page, 9, searchQuery);
       setPosts(response.posts);
       setPostsTotalPages(response.pages || 1);
     } catch (err) {
@@ -87,7 +93,7 @@ const SearchPage: React.FC = () => {
   const searchPostsByHashtag = async (hashtag: string, page: number) => {
     setPostsLoading(true);
     try {
-      const response = await postsAPI.getPostsByHashtag(hashtag, page, 5);
+      const response = await postsAPI.getPostsByHashtag(hashtag, page, 9);
       setPosts(response.posts);
       setPostsTotalPages(response.pages || 1);
     } catch (err) {
@@ -97,11 +103,10 @@ const SearchPage: React.FC = () => {
     }
   };
   
-  const searchPostsByAuthor = async (author: string, page: number) => {
+  const searchPostsByAuthor = async (page: number) => {
     setPostsLoading(true);
     try {
-      // This would be an API call to get posts by author username
-      const response = await postsAPI.getAllPosts(page, 5, '');
+      const response = await postsAPI.getAllPosts(page, 9, '');
       setPosts(response.posts);
       setPostsTotalPages(response.pages || 1);
     } catch (err) {
@@ -121,6 +126,23 @@ const SearchPage: React.FC = () => {
       setUsersError(err instanceof Error ? err.message : 'Error while searching');
     } finally {
       setUsersLoading(false);
+    }
+  };
+
+  const fetchPopularPosts = async (page: number) => {
+    setPopularLoading(true);
+    try {
+      // On suppose que l'API retourne les articles les plus populaires avec sort=popular
+      const response = await postsAPI.getAllPosts(page, 9, '');
+      // Si l'API supporte un paramètre de tri, remplacer la ligne ci-dessus par :
+      // const response = await postsAPI.getAllPosts(page, 9, '', 'popular');
+      setPopularPosts(response.posts);
+      setPostsTotalPages(response.pages || 1);
+    } catch (err) {
+      setPopularPosts([]);
+    } finally {
+      setPopularLoading(false);
+      setPostsLoading(false);
     }
   };
   
@@ -180,7 +202,7 @@ const SearchPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="mb-6">
         <Link to="/" className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4 group">
           <ArrowLeft size={18} className="mr-2 group-hover:-translate-x-1 transition-transform" />
@@ -246,15 +268,45 @@ const SearchPage: React.FC = () => {
             </div>
           )}
 
-          {postsLoading ? (
+          {postsLoading && !query && !hashtagFilter && !authorFilter && !dateFilter && sortBy === 'recent' ? (
+            // Recherche vide : afficher les articles populaires
+            popularLoading ? (
+              renderLoading('Loading popular articles...')
+            ) : popularPosts.length > 0 ? (
+              <div className="space-y-8">
+                <h2 className="text-xl font-bold text-gray-900 mb-4">Popular Articles</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {popularPosts.map(post => (
+                    <PostCard key={post._id} post={post} />
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-10 text-center">
+                <div className="flex justify-center mb-6">
+                  <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center">
+                    <FileText size={40} className="text-gray-400" />
+                  </div>
+                </div>
+                <h2 className="text-xl font-medium text-gray-900 mb-3">
+                  No popular articles found
+                </h2>
+                <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                  There are no popular articles to display at the moment.
+                </p>
+              </div>
+            )
+          ) : postsLoading ? (
             renderLoading('Searching articles...')
           ) : posts.length > 0 ? (
             <div className="space-y-8">
-              <div className="space-y-4">
-                {posts.map(post => (
-                  <PostCard key={post._id} post={post} />
-                ))}
-              </div>
+              {posts.length > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {posts.map(post => (
+                    <PostCard key={post._id} post={post} />
+                  ))}
+                </div>
+              )}
 
               {postsTotalPages > 1 && (
                 <div className="flex flex-col sm:flex-row justify-center items-center space-y-3 sm:space-y-0 sm:space-x-4 mt-8">

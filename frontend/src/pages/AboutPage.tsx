@@ -14,15 +14,7 @@ import {
   Bell, 
   MessageSquare, 
   Heart, 
-  Bookmark, 
   Users, 
-  Search, 
-  Smartphone, 
-  Shield, 
-  Share2, 
-  Palette,
-  Globe,
-  Database,
   ChevronRight
 } from 'lucide-react';
 
@@ -30,7 +22,7 @@ const AboutPage: React.FC = () => {
   const { user } = useAuth();
   
   return (
-    <div className="max-w-4xl mx-auto pb-16">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
       <div className="mb-6">
         <Link to="/" className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4 group">
           <ArrowLeft size={18} className="mr-2 group-hover:-translate-x-1 transition-transform" />
@@ -87,7 +79,7 @@ const AboutPage: React.FC = () => {
             )}
             
             <a 
-              href="https://github.com/yourusername/blog-platform" 
+              href="https://github.com/zine-coder/blog-platform" 
               target="_blank" 
               rel="noopener noreferrer"
               className="inline-flex items-center space-x-2 px-6 py-3 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors"
@@ -265,7 +257,7 @@ const AboutPage: React.FC = () => {
             
           <div className="flex flex-wrap justify-center gap-4">
             <a 
-              href="mailto:contact@example.com" 
+              href="mailto:zinecoder.dev@gmail.com" 
               className="inline-flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
             >
               <Mail size={18} />
@@ -273,7 +265,7 @@ const AboutPage: React.FC = () => {
             </a>
             
             <a 
-              href="https://github.com/yourusername/blog-platform/issues" 
+              href="https://github.com/zine-coder/blog-platform/issues" 
               target="_blank" 
               rel="noopener noreferrer"
               className="inline-flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
@@ -283,7 +275,7 @@ const AboutPage: React.FC = () => {
             </a>
             
             <a 
-              href="https://linkedin.com/in/yourusername" 
+              href="https://www.linkedin.com/in/zine-coder-548659340/" 
               target="_blank" 
               rel="noopener noreferrer"
               className="inline-flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"

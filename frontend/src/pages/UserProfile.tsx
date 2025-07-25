@@ -68,7 +68,7 @@ const UserProfile: React.FC = () => {
     
     setPostsLoading(true);
     try {
-      const response = await postsAPI.getUserPosts(user.id, currentPage, 6);
+      const response = await postsAPI.getUserPosts(user.id, currentPage, 9);
       setUserPosts(response.posts);
       setTotalPages(response.pages || 1);
     } catch (err) {
@@ -146,7 +146,7 @@ const UserProfile: React.FC = () => {
   const isCurrentUser = currentUser && currentUser.id === user.id;
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="mb-6">
         <button
           onClick={() => navigate(-1)}
@@ -294,34 +294,34 @@ const UserProfile: React.FC = () => {
             </p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {userPosts.map(post => (
               <PostCard key={post._id} post={post} />
             ))}
+          </div>
+        )}
 
-            {totalPages > 1 && (
-              <div className="flex justify-center mt-8">
-                <div className="flex items-center space-x-2">
-                  <button
-                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                    disabled={currentPage === 1}
-                    className="px-4 py-2 border border-gray-300 rounded-md text-sm disabled:opacity-50 hover:bg-gray-50"
-                  >
-                    Previous
-                  </button>
-                  <span className="px-4 py-2 text-sm bg-gray-100 rounded-md">
-                    Page {currentPage} of {totalPages}
-                  </span>
-                  <button
-                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                    disabled={currentPage === totalPages}
-                    className="px-4 py-2 border border-gray-300 rounded-md text-sm disabled:opacity-50 hover:bg-gray-50"
-                  >
-                    Next
-                  </button>
-                </div>
-              </div>
-            )}
+        {totalPages > 1 && (
+          <div className="flex justify-center mt-8">
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="px-4 py-2 border border-gray-300 rounded-md text-sm disabled:opacity-50 hover:bg-gray-50"
+              >
+                Previous
+              </button>
+              <span className="px-4 py-2 text-sm bg-gray-100 rounded-md">
+                Page {currentPage} of {totalPages}
+              </span>
+              <button
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                className="px-4 py-2 border border-gray-300 rounded-md text-sm disabled:opacity-50 hover:bg-gray-50"
+              >
+                Next
+              </button>
+            </div>
           </div>
         )}
       </div>

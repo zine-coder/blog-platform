@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Calendar, User, MessageCircle, ArrowRight, Hash } from 'lucide-react';
+import { Calendar, User, ArrowRight, Hash } from 'lucide-react';
 
 interface PostCardProps {
   post: {
@@ -34,7 +34,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
     });
   };
 
-  const getExcerpt = (text: string, maxLength: number = 150) => {
+  const getExcerpt = (text: string, maxLength: number = 120) => {
     return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
   };
 
@@ -48,10 +48,10 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
   };
 
   return (
-    <article className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200 overflow-hidden">
+    <article className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200 overflow-hidden flex flex-col h-full">
       {/* Image section with lazy loading */}
       {post.imageUrl && (
-        <div className="w-full h-48 overflow-hidden bg-gray-100 relative">
+        <div className="w-full h-40 overflow-hidden bg-gray-100 relative">
           {!imageError && (
             <img 
               src={post.imageUrl} 
@@ -75,24 +75,24 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
         </div>
       )}
       
-      <div className="p-5">
+      <div className="p-4 flex flex-col flex-grow">
         {/* Title and content */}
-        <div className="mb-4">
+        <div className="mb-3 flex-grow">
           <Link to={`/posts/${post._id}`} className="block group">
-            <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+            <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">
               {post.title}
             </h3>
           </Link>
           
-          <p className="text-gray-600 mb-3 line-clamp-2">
+          <p className="text-gray-600 text-sm line-clamp-3">
             {getExcerpt(post.body)}
           </p>
         </div>
         
         {/* Hashtags */}
         {post.hashtags && post.hashtags.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mb-4">
-            {post.hashtags.map((tag, index) => (
+          <div className="flex flex-wrap gap-1 mb-3">
+            {post.hashtags.slice(0, 3).map((tag, index) => (
               <button
                 key={index}
                 onClick={() => handleHashtagClick(tag)}
@@ -102,14 +102,17 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                 {tag}
               </button>
             ))}
+            {post.hashtags.length > 3 && (
+              <span className="text-xs text-gray-500">+{post.hashtags.length - 3} more</span>
+            )}
           </div>
         )}
         
         {/* Author and metadata */}
-        <div className="flex flex-wrap items-center justify-between gap-y-3">
-          <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
-            <Link to={`/users/${post.author.username}`} className="flex items-center gap-1.5 hover:text-blue-600 transition-colors">
-              <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center overflow-hidden">
+        <div className="flex flex-wrap items-center justify-between gap-y-2 mt-auto pt-3 border-t border-gray-100">
+          <div className="flex items-center gap-2 text-xs text-gray-500">
+            <Link to={`/users/${post.author.username}`} className="flex items-center gap-1 hover:text-blue-600 transition-colors">
+              <div className="w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center overflow-hidden">
                 {post.author.profileImage ? (
                   <img 
                     src={post.author.profileImage} 
@@ -118,30 +121,27 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                     loading="lazy"
                   />
                 ) : (
-                  <User size={14} className="text-blue-600" />
+                  <User size={12} className="text-blue-600" />
                 )}
               </div>
               <span className="font-medium">{post.author.username}</span>
             </Link>
             
-            <div className="flex items-center gap-1.5">
-              <Calendar size={16} className="text-gray-400" />
-              <span>{formatDate(post.createdAt)}</span>
-            </div>
+            <span className="text-gray-400">•</span>
             
-            <div className="flex items-center gap-1.5">
-              <MessageCircle size={16} className="text-gray-400" />
-              <span>{commentCount} comments</span>
+            <div className="flex items-center gap-1">
+              <Calendar size={12} className="text-gray-400" />
+              <span>{formatDate(post.createdAt)}</span>
             </div>
           </div>
           
           {/* Read more button */}
           <Link 
             to={`/posts/${post._id}`}
-            className="inline-flex items-center gap-1 text-blue-600 font-medium hover:text-blue-800 transition-colors group"
+            className="inline-flex items-center gap-1 text-xs text-blue-600 font-medium hover:text-blue-800 transition-colors group"
           >
-            Read article
-            <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+            Read more
+            <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
       </div>

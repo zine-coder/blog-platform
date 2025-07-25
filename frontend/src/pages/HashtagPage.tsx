@@ -21,7 +21,7 @@ const HashtagPage: React.FC = () => {
   const loadPosts = async (hashtag: string, page: number) => {
     setLoading(true);
     try {
-      const response = await postsAPI.getPostsByHashtag(hashtag, page, 6);
+      const response = await postsAPI.getPostsByHashtag(hashtag, page, 9);
       setPosts(response.posts);
       setTotalPages(response.pages);
     } catch (err) {
@@ -49,7 +49,7 @@ const HashtagPage: React.FC = () => {
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
         <Link to="/" className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4">
           <ChevronLeft size={16} className="mr-1" />
@@ -77,11 +77,13 @@ const HashtagPage: React.FC = () => {
         </div>
       ) : (
         <div className="space-y-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {posts.map(post => (
-              <PostCard key={post._id} post={post} />
-            ))}
-          </div>
+          {posts.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {posts.map(post => (
+                <PostCard key={post._id} post={post} />
+              ))}
+            </div>
+          )}
 
           {totalPages > 1 && (
             <div className="flex flex-col sm:flex-row justify-center items-center space-y-3 sm:space-y-0 sm:space-x-4 mt-8">

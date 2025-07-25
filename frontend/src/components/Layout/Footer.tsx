@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { PenTool, Heart, Code, Github, Linkedin, ExternalLink } from 'lucide-react';
+import { PenTool, Code, Github, Linkedin, ExternalLink } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 const Footer: React.FC = () => {
@@ -34,9 +34,7 @@ const Footer: React.FC = () => {
             </p>
             <div className="flex items-center space-x-2 text-xs sm:text-sm text-gray-400 flex-wrap">
               <Code size={16} />
-              <span>Developed with</span>
-              <Heart size={16} className="text-red-400 animate-pulse" />
-              <span>by</span>
+              <span>Developed with precision by</span>
               <span className="text-blue-400 font-medium">Zeno Coder</span>
             </div>
           </div>
@@ -102,14 +100,14 @@ const Footer: React.FC = () => {
             <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 text-white">Contact</h3>
             <div className="space-y-4">
               <div className="flex items-center space-x-3 text-gray-300">
-                <span className="text-xs sm:text-sm break-all">contact@blogplatform.com</span>
+                <span className="text-xs sm:text-sm break-all">zinecoder.dev@gmail.com</span>
               </div>
               
               <div className="pt-2">
                 <p className="text-sm text-gray-400 mb-3">Follow Us</p>
                 <div className="flex space-x-4">
                   <a 
-                    href="https://github.com" 
+                    href="https://github.com/zine-coder" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="w-8 h-8 sm:w-10 sm:h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-gray-700 transition-all duration-200 hover:scale-110 group"
@@ -118,7 +116,7 @@ const Footer: React.FC = () => {
                     <Github size={16} className="text-gray-300 group-hover:text-white sm:w-[18px] sm:h-[18px]" />
                   </a>
                   <a 
-                    href="https://linkedin.com" 
+                    href="https://www.linkedin.com/in/zine-coder-548659340/" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="w-8 h-8 sm:w-10 sm:h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-blue-600 transition-all duration-200 hover:scale-110 group"
@@ -127,7 +125,7 @@ const Footer: React.FC = () => {
                     <Linkedin size={16} className="text-gray-300 group-hover:text-white sm:w-[18px] sm:h-[18px]" />
                   </a>
                   <a 
-                    href="https://portfolio.com" 
+                    href="#" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="w-8 h-8 sm:w-10 sm:h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-purple-600 transition-all duration-200 hover:scale-110 group"

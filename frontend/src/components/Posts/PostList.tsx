@@ -67,7 +67,7 @@ const PostList: React.FC = () => {
   const loadPosts = useCallback(async (page: number) => {
     setLoading(true);
     try {
-      const response = await postsAPI.getAllPosts(page, 6);
+      const response = await postsAPI.getAllPosts(page, 9);
       setPosts(response.posts);
       setTotalPages(response.pages);
     } catch (err) {
@@ -121,7 +121,7 @@ const PostList: React.FC = () => {
     }
 
     return (
-      <div className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {posts.map(post => (
           <MemoizedPostCard key={post._id} post={post} />
         ))}

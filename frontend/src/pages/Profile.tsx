@@ -180,10 +180,9 @@ const ProfileContent: React.FC = () => {
 
   const loadUserPosts = async () => {
     if (!user) return;
-    
     setLoading(true);
     try {
-      const response = await postsAPI.getUserPosts(user.id, currentPage, 6);
+      const response = await postsAPI.getUserPosts(user.id, currentPage, 9);
       setUserPosts(response.posts || []);
       setTotalPages(response.pages || 1);
       setArticlesCount(response.total || response.posts?.length || 0);
@@ -196,10 +195,9 @@ const ProfileContent: React.FC = () => {
   
   const loadLikedPosts = async () => {
     if (!user) return;
-    
     setLikedLoading(true);
     try {
-      const response = await userAPI.getLikedPosts(likedPage, 6);
+      const response = await userAPI.getLikedPosts(likedPage, 9);
       setLikedPosts(response.posts || []);
       setLikedTotalPages(response.pages || 1);
     } catch (err) {
@@ -211,14 +209,10 @@ const ProfileContent: React.FC = () => {
   
   const loadBookmarkedPosts = async () => {
     if (!user) return;
-    
     setBookmarkedLoading(true);
     try {
-      // First, refresh user data to get the latest bookmarks
       await authAPI.getCurrentUser();
-      
-      // Then load the bookmarked posts
-      const response = await userAPI.getBookmarkedPosts(bookmarkedPage, 6);
+      const response = await userAPI.getBookmarkedPosts(bookmarkedPage, 9);
       setBookmarkedPosts(response.posts || []);
       setBookmarkedTotalPages(response.pages || 1);
     } catch (err) {
@@ -483,7 +477,7 @@ const ProfileContent: React.FC = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="mb-6">
         <Link to="/" className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4 group">
           <ArrowLeft size={18} className="mr-2 group-hover:-translate-x-1 transition-transform" />
@@ -998,7 +992,7 @@ const ProfileContent: React.FC = () => {
               </button>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {userPosts.map(post => (
                 <div key={post._id} className="relative">
                   <PostCard post={post} />
@@ -1020,30 +1014,30 @@ const ProfileContent: React.FC = () => {
                   </div>
                 </div>
               ))}
+            </div>
+          )}
 
-              {totalPages > 1 && (
-                <div className="flex justify-center mt-8">
-                  <div className="flex items-center space-x-2">
-                    <button
-                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                      disabled={currentPage === 1}
-                      className="px-4 py-2 border border-gray-300 rounded-md text-sm disabled:opacity-50 hover:bg-gray-50"
-                    >
-                      Previous
-                    </button>
-                    <span className="px-4 py-2 text-sm bg-gray-100 rounded-md">
-                      Page {currentPage} of {totalPages}
-                    </span>
-                    <button
-                      onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                      disabled={currentPage === totalPages}
-                      className="px-4 py-2 border border-gray-300 rounded-md text-sm disabled:opacity-50 hover:bg-gray-50"
-                    >
-                      Next
-                    </button>
-                  </div>
-                </div>
-              )}
+          {totalPages > 1 && (
+            <div className="flex justify-center mt-8">
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                  className="px-4 py-2 border border-gray-300 rounded-md text-sm disabled:opacity-50 hover:bg-gray-50"
+                >
+                  Previous
+                </button>
+                <span className="px-4 py-2 text-sm bg-gray-100 rounded-md">
+                  Page {currentPage} of {totalPages}
+                </span>
+                <button
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                  className="px-4 py-2 border border-gray-300 rounded-md text-sm disabled:opacity-50 hover:bg-gray-50"
+                >
+                  Next
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -1079,34 +1073,34 @@ const ProfileContent: React.FC = () => {
               </Link>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {likedPosts.map(post => (
                 <PostCard key={post._id} post={post} />
               ))}
+            </div>
+          )}
 
-              {likedTotalPages > 1 && (
-                <div className="flex justify-center mt-8">
-                  <div className="flex items-center space-x-2">
-                    <button
-                      onClick={() => setLikedPage(prev => Math.max(prev - 1, 1))}
-                      disabled={likedPage === 1}
-                      className="px-4 py-2 border border-gray-300 rounded-md text-sm disabled:opacity-50 hover:bg-gray-50"
-                    >
-                      Previous
-                    </button>
-                    <span className="px-4 py-2 text-sm bg-gray-100 rounded-md">
-                      Page {likedPage} of {likedTotalPages}
-                    </span>
-                    <button
-                      onClick={() => setLikedPage(prev => Math.min(prev + 1, likedTotalPages))}
-                      disabled={likedPage === likedTotalPages}
-                      className="px-4 py-2 border border-gray-300 rounded-md text-sm disabled:opacity-50 hover:bg-gray-50"
-                    >
-                      Next
-                    </button>
-                  </div>
-                </div>
-              )}
+          {likedTotalPages > 1 && (
+            <div className="flex justify-center mt-8">
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => setLikedPage(prev => Math.max(prev - 1, 1))}
+                  disabled={likedPage === 1}
+                  className="px-4 py-2 border border-gray-300 rounded-md text-sm disabled:opacity-50 hover:bg-gray-50"
+                >
+                  Previous
+                </button>
+                <span className="px-4 py-2 text-sm bg-gray-100 rounded-md">
+                  Page {likedPage} of {likedTotalPages}
+                </span>
+                <button
+                  onClick={() => setLikedPage(prev => Math.min(prev + 1, likedTotalPages))}
+                  disabled={likedPage === likedTotalPages}
+                  className="px-4 py-2 border border-gray-300 rounded-md text-sm disabled:opacity-50 hover:bg-gray-50"
+                >
+                  Next
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -1142,34 +1136,34 @@ const ProfileContent: React.FC = () => {
               </Link>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {bookmarkedPosts.map(post => (
                 <PostCard key={post._id} post={post} />
               ))}
+            </div>
+          )}
 
-              {bookmarkedTotalPages > 1 && (
-                <div className="flex justify-center mt-8">
-                  <div className="flex items-center space-x-2">
-                    <button
-                      onClick={() => setBookmarkedPage(prev => Math.max(prev - 1, 1))}
-                      disabled={bookmarkedPage === 1}
-                      className="px-4 py-2 border border-gray-300 rounded-md text-sm disabled:opacity-50 hover:bg-gray-50"
-                    >
-                      Previous
-                    </button>
-                    <span className="px-4 py-2 text-sm bg-gray-100 rounded-md">
-                      Page {bookmarkedPage} of {bookmarkedTotalPages}
-                    </span>
-                    <button
-                      onClick={() => setBookmarkedPage(prev => Math.min(prev + 1, bookmarkedTotalPages))}
-                      disabled={bookmarkedPage === bookmarkedTotalPages}
-                      className="px-4 py-2 border border-gray-300 rounded-md text-sm disabled:opacity-50 hover:bg-gray-50"
-                    >
-                      Next
-                    </button>
-                  </div>
-                </div>
-              )}
+          {bookmarkedTotalPages > 1 && (
+            <div className="flex justify-center mt-8">
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => setBookmarkedPage(prev => Math.max(prev - 1, 1))}
+                  disabled={bookmarkedPage === 1}
+                  className="px-4 py-2 border border-gray-300 rounded-md text-sm disabled:opacity-50 hover:bg-gray-50"
+                >
+                  Previous
+                </button>
+                <span className="px-4 py-2 text-sm bg-gray-100 rounded-md">
+                  Page {bookmarkedPage} of {bookmarkedTotalPages}
+                </span>
+                <button
+                  onClick={() => setBookmarkedPage(prev => Math.min(prev + 1, bookmarkedTotalPages))}
+                  disabled={bookmarkedPage === bookmarkedTotalPages}
+                  className="px-4 py-2 border border-gray-300 rounded-md text-sm disabled:opacity-50 hover:bg-gray-50"
+                >
+                  Next
+                </button>
+              </div>
             </div>
           )}
         </div>
