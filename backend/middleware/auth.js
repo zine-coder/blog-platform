@@ -1,14 +1,10 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-// Protect routes
-exports.protect = async (req, res, next) => {
+// Extract token from request
+const getTokenFromRequest = (req) => {
   let token;
   
-  console.log('Auth headers:', req.headers.authorization);
-  console.log('JWT_SECRET exists:', !!process.env.JWT_SECRET);
-  console.log('JWT_SECRET length:', process.env.JWT_SECRET ? process.env.JWT_SECRET.length : 0);
-
   // Check for token in headers
   if (
     req.headers.authorization &&
@@ -16,54 +12,89 @@ exports.protect = async (req, res, next) => {
   ) {
     // Set token from Bearer token in header
     token = req.headers.authorization.split(' ')[1];
-    console.log('Token found in Authorization header:', token ? 'Yes' : 'No');
-    if (token) {
-      console.log('Token length:', token.length);
-    }
   } else if (req.cookies && req.cookies.token) {
     // Set token from cookie
     token = req.cookies.token;
-    console.log('Token found in cookies:', token ? 'Yes' : 'No');
   } else if (req.headers['x-auth-token']) {
     // Set token from custom header
     token = req.headers['x-auth-token'];
-    console.log('Token found in x-auth-token header:', token ? 'Yes' : 'No');
   }
+  
+  return token;
+};
+
+// Verify token and get user
+const verifyTokenAndGetUser = async (token) => {
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id).select('-password');
+    return { user, error: null };
+  } catch (err) {
+    return { user: null, error: err };
+  }
+};
+
+// Protect routes - requires authentication
+exports.protect = async (req, res, next) => {
+  const token = getTokenFromRequest(req);
 
   // Check if token exists
   if (!token) {
     console.log('No token found in request');
-    return next(); // Allow request to continue without authentication
+    return res.status(401).json({
+      success: false,
+      error: 'Authentication required. Please log in.'
+    });
   }
 
   try {
     // Verify token
-    console.log('Attempting to verify token...');
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log('Token verified successfully, user ID:', decoded.id);
-
-    // Attach user to request
-    req.user = await User.findById(decoded.id).select('-password');
-    console.log('User attached to request:', req.user ? 'Yes' : 'No');
-    if (req.user) {
-      console.log('User ID:', req.user._id);
-    } else {
-      console.log('User not found in database');
+    const { user, error } = await verifyTokenAndGetUser(token);
+    
+    if (error || !user) {
+      console.error('Authentication error:', error?.message);
       return res.status(401).json({
         success: false,
-        error: 'User not found. Please log in again.'
+        error: 'Invalid token. Please log in again.'
       });
     }
 
+    // Attach user to request
+    req.user = user;
     next();
   } catch (err) {
     console.error('Authentication error:', err.message);
-    console.error('Error name:', err.name);
-    console.error('Error stack:', err.stack);
     return res.status(401).json({
       success: false,
       error: 'Invalid token. Please log in again.'
     });
+  }
+};
+
+// Optional authentication - allows requests with or without authentication
+exports.optionalAuth = async (req, res, next) => {
+  const token = getTokenFromRequest(req);
+
+  // If no token, continue without authentication
+  if (!token) {
+    return next();
+  }
+
+  try {
+    // Verify token
+    const { user, error } = await verifyTokenAndGetUser(token);
+    
+    // If token is valid, attach user to request
+    if (user && !error) {
+      req.user = user;
+    }
+    
+    // Continue regardless of authentication result
+    next();
+  } catch (err) {
+    // Continue without authentication in case of error
+    console.error('Optional auth error:', err.message);
+    next();
   }
 };
 
@@ -122,4 +153,4 @@ exports.checkOwnership = (modelName) => async (req, res, next) => {
     console.error(`Error in checkOwnership middleware:`, err);
     next(err);
   }
-}; 
+};

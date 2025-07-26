@@ -51,10 +51,8 @@ const PostDetail: React.FC = () => {
   const [shouldShowMore, setShouldShowMore] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
 
-  // New states for enhanced UI
-  const [isBookmarked, setIsBookmarked] = useState(false);
-  const [likeCount, setLikeCount] = useState(0);
-  const [isLiked, setIsLiked] = useState(false);
+  // States for UI loading
+  // Note: isLiked, isBookmarked, and likes count come directly from post object
   const [readTime, setReadTime] = useState('');
   const [likeLoading, setLikeLoading] = useState(false);
   const [bookmarkLoading, setBookmarkLoading] = useState(false);
@@ -88,24 +86,7 @@ const PostDetail: React.FC = () => {
     }
   }, [post]);
 
-  // Set like state when post is loaded
-  useEffect(() => {
-    if (post && post.likes !== undefined) {
-      setLikeCount(post.likes);
-      setIsLiked(post.isLiked || false);
-    }
-  }, [post]);
-
-  // Set bookmark state when post is loaded
-  useEffect(() => {
-    if (post && post.isBookmarked !== undefined) {
-      setIsBookmarked(post.isBookmarked);
-    } else if (user && post._id) {
-      // Fallback to checking user bookmarks if post.isBookmarked is not available
-      const bookmarks = user.bookmarks || [];
-      setIsBookmarked(bookmarks.includes(post._id));
-    }
-  }, [post, user]);
+  // No need for useEffect to set like/bookmark state as we use post properties directly
 
   const loadPost = async () => {
     try {
@@ -146,14 +127,22 @@ const PostDetail: React.FC = () => {
     
     setLikeLoading(true);
     try {
-      if (isLiked) {
+      if (post.isLiked) {
         const response = await postsAPI.unlikePost(post._id);
-        setIsLiked(false);
-        setLikeCount(response.likes);
+        // Update post object directly
+        setPost({
+          ...post,
+          isLiked: false,
+          likes: response.likes
+        });
       } else {
         const response = await postsAPI.likePost(post._id);
-        setIsLiked(true);
-        setLikeCount(response.likes);
+        // Update post object directly
+        setPost({
+          ...post,
+          isLiked: true,
+          likes: response.likes
+        });
       }
     } catch (err) {
       console.error('Error updating like status:', err);
@@ -170,20 +159,24 @@ const PostDetail: React.FC = () => {
     
     setBookmarkLoading(true);
     try {
-      if (isBookmarked) {
-        await postsAPI.unbookmarkPost(post._id);
+      if (post.isBookmarked) {
+        const response = await postsAPI.unbookmarkPost(post._id);
+        // Update post object directly
+        setPost({
+          ...post,
+          isBookmarked: false
+        });
       } else {
-        await postsAPI.bookmarkPost(post._id);
+        const response = await postsAPI.bookmarkPost(post._id);
+        // Update post object directly
+        setPost({
+          ...post,
+          isBookmarked: true
+        });
       }
-      
-      // Update local state
-      setIsBookmarked(!isBookmarked);
       
       // Refresh user data to get updated bookmarks
       await refreshUser();
-      
-      // Reload post to get updated bookmark status
-      await loadPost();
     } catch (err) {
       console.error('Error updating bookmark status:', err);
     } finally {
@@ -423,7 +416,7 @@ const PostDetail: React.FC = () => {
                   onClick={handleLike}
                   disabled={likeLoading}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border transition-colors ${
-                    isLiked 
+                    post.isLiked 
                       ? 'border-red-200 bg-red-50 text-red-600' 
                       : 'border-gray-200 hover:bg-gray-50 text-gray-700'
                   }`}
@@ -431,9 +424,9 @@ const PostDetail: React.FC = () => {
                   {likeLoading ? (
                     <Loader2 size={16} className="animate-spin" />
                   ) : (
-                    <Heart size={16} className={isLiked ? 'fill-red-500 text-red-500' : ''} />
+                    <Heart size={16} className={post.isLiked ? 'fill-red-500 text-red-500' : ''} />
                   )}
-                  <span>{likeCount}</span>
+                  <span>{post.likes}</span>
                 </button>
                 
                 <button 
@@ -449,7 +442,7 @@ const PostDetail: React.FC = () => {
                 onClick={handleBookmark}
                 disabled={bookmarkLoading}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border transition-colors ${
-                  isBookmarked 
+                  post.isBookmarked 
                     ? 'border-blue-200 bg-blue-50 text-blue-600' 
                     : 'border-gray-200 hover:bg-gray-50 text-gray-700'
                 }`}
@@ -458,12 +451,12 @@ const PostDetail: React.FC = () => {
                   <Loader2 size={16} className="animate-spin" />
                 ) : (
                   <>
-                    {isBookmarked ? (
+                    {post.isBookmarked ? (
                       <BookmarkCheck size={16} className="fill-blue-500 text-blue-500" />
                     ) : (
                       <Bookmark size={16} />
                     )}
-                    <span>{isBookmarked ? 'Saved' : 'Save'}</span>
+                    <span>{post.isBookmarked ? 'Saved' : 'Save'}</span>
                   </>
                 )}
               </button>

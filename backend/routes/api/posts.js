@@ -13,7 +13,7 @@ const {
   getPostsByHashtag
 } = require('../../controllers/postController');
 const { getComments, addComment } = require('../../controllers/commentController');
-const { protect, requireAuth, checkOwnership } = require('../../middleware/auth');
+const { protect, requireAuth, checkOwnership, optionalAuth } = require('../../middleware/auth');
 const { validatePost } = require('../../middleware/validation');
 
 // @route   GET /api/posts
@@ -33,8 +33,8 @@ router.get('/hashtag/:tag', getPostsByHashtag);
 
 // @route   GET /api/posts/:id
 // @desc    Get single post
-// @access  Public
-router.get('/:id', getPost);
+// @access  Public with optional auth
+router.get('/:id', optionalAuth, getPost);
 
 // @route   PUT /api/posts/:id
 // @desc    Update post
@@ -76,4 +76,4 @@ router.post('/:id/bookmark', protect, requireAuth, bookmarkPost);
 // @access  Private
 router.delete('/:id/bookmark', protect, requireAuth, unbookmarkPost);
 
-module.exports = router; 
+module.exports = router;

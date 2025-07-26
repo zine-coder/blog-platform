@@ -48,7 +48,7 @@ const handleResponse = async (response: Response) => {
   if (!response.ok) {
     try {
       const errorData = await response.json();
-      const error: any = new Error(errorData.error || 'An error occurred');
+      const error: any = new Error(errorData.message || errorData.error || 'An error occurred');
       
       // Add additional error information if available
       if (errorData.field) {
@@ -63,7 +63,25 @@ const handleResponse = async (response: Response) => {
       error.status = response.status;
       error.statusText = response.statusText;
       
+      // Add validation errors if available
+      if (errorData.errors && Array.isArray(errorData.errors)) {
+        error.validationErrors = errorData.errors;
+      }
+      
+      // Add specific error code if available
+      if (errorData.code) {
+        error.code = errorData.code;
+      }
+      
       console.error(`API Error (${response.status}):`, errorData);
+      
+      // Handle specific error cases
+      if (response.status === 401) {
+        // Unauthorized - token might be expired
+        localStorage.removeItem('token');
+        // You could trigger a logout event here if needed
+        // Example: window.dispatchEvent(new Event('auth:logout'));
+      }
       
       throw error;
     } catch (jsonError) {
